@@ -1,0 +1,199 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
+  overflow: hidden;
+  background: #f0f2f5;
+}
+
+#map {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.info-panel {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 300px;
+  min-width: 280px;
+}
+
+.info-panel h1 {
+  font-size: 18px;
+  color: #1a1a2e;
+  margin-bottom: 5px;
+  font-weight: 700;
+}
+
+.info-panel h2 {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+  font-weight: 400;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 14px;
+  color: #1a1a2e;
+  font-weight: 600;
+}
+
+#connection-status {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+#connection-status.connected {
+  background: #d4edda;
+  color: #155724;
+}
+
+#connection-status.disconnected {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+#connection-status.connecting {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.legend {
+  margin-top: 10px;
+}
+
+.legend h3 {
+  font-size: 14px;
+  color: #1a1a2e;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #333;
+}
+
+.legend-color {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+  .info-panel {
+    top: auto;
+    bottom: 20px;
+    right: 20px;
+    left: 20px;
+    max-width: none;
+    min-width: auto;
+  }
+  
+  .info-panel h1 {
+    font-size: 16px;
+  }
+  
+  .info-panel h2 {
+    font-size: 12px;
+  }
+}
+
+/* Leaflet popup customization */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  padding: 12px;
+  min-width: 180px;
+}
+
+.vehicle-popup {
+  font-size: 13px;
+}
+
+.vehicle-popup .vehicle-id {
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.vehicle-popup .vehicle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vehicle-popup .info-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.vehicle-popup .info-label {
+  color: #666;
+}
+
+.vehicle-popup .info-value {
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.vehicle-popup .speed-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 8px;
+}

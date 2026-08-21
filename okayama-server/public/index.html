@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Okayama Transit - Транспорт на карте</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+  <div id="map"></div>
+  
+  <div class="overlay">
+    <div class="header">
+      <h1>🚌 Okayama Transit</h1>
+      <div class="status" id="status">
+        <span class="indicator"></span>
+        <span class="text">Подключение...</span>
+      </div>
+    </div>
+    
+    <div class="info-panel">
+      <div class="stat">
+        <span class="label">Транспорт:</span>
+        <span class="value" id="vehicle-count">0</span>
+      </div>
+      <div class="stat">
+        <span class="label">Обновлено:</span>
+        <span class="value" id="last-update">--:--:--</span>
+      </div>
+    </div>
+    
+    <div class="legend">
+      <h3>Легенда</h3>
+      <div class="legend-item">
+        <span class="marker" style="background: #FF0000;"></span>
+        <span>Маршрут 1</span>
+      </div>
+      <div class="legend-item">
+        <span class="marker" style="background: #00FF00;"></span>
+        <span>Маршрут 2</span>
+      </div>
+      <div class="legend-item">
+        <span class="marker" style="background: #0000FF;"></span>
+        <span>Маршрут 3</span>
+      </div>
+      <div class="legend-item">
+        <span class="marker" style="background: #FFFF00;"></span>
+        <span>Маршрут 4</span>
+      </div>
+      <div class="legend-item">
+        <span class="marker" style="background: #FF00FF;"></span>
+        <span>Маршрут 5</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Okayama Transit - Карта транспорта</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow: hidden;
+    }
+    
+    #map {
+      width: 100vw;
+      height: 100vh;
+    }
+    
+    .info-panel {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+      min-width: 200px;
+    }
+    
+    .info-panel h2 {
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    
+    .info-label {
+      color: #666;
+    }
+    
+    .info-value {
+      font-weight: bold;
+      color: #333;
+    }
+    
+    .legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    
+    .legend h3 {
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+      font-size: 12px;
+    }
+    
+    .legend-color {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    
+    .status-connected {
+      background-color: #4CAF50;
+    }
+    
+    .status-disconnected {
+      background-color: #f44336;
+    }
+    
+    .vehicle-popup {
+      font-size: 12px;
+    }
+    
+    .vehicle-popup h4 {
+      margin-bottom: 5px;
+      color: #333;
+    }
+    
+    .vehicle-popup p {
+      margin: 2px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  
+  <div class="info-panel">
+    <h2>🚌 Okayama Transit</h2>
+    <div class="info-item">
+      <span class="info-label">Статус:</span>
+      <span class="info-value">
+        <span class="status-indicator status-disconnected" id="statusIndicator"></span>
+        <span id="statusText">Отключено</span>
+      </span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Транспорт:</span>
+      <span class="info-value" id="vehicleCount">0</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Обновлено:</span>
+      <span class="info-value" id="lastUpdate">-</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">API:</span>
+      <span class="info-value" id="apiStatus">Проверка...</span>
+    </div>
+  </div>
+  
+  <div class="legend">
+    <h3>Маршруты</h3>
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #FF0000;"></div>
+      <span>Route 1</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #00FF00;"></div>
+      <span>Route 2</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #0000FF;"></div>
+      <span>Route 3</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #FFFF00;"></div>
+      <span>Route 4</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background-color: #FF00FF;"></div>
+      <span>Route 5</span>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    // Инициализация карты с центром в Окаяме
+    const map = L.map('map').setView([34.6551, 133.9195], 13);
+    
+    // Добавляем слой OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    // Хранилище маркеров транспорта
+    const vehicleMarkers = {};
+    
+    // Создание иконки для транспорта
+    function createVehicleIcon(color) {
+      return L.divIcon({
+        className: 'vehicle-marker',
+        html: `<div style="
+          width: 12px;
+          height: 12px;
+          background-color: ${color};
+          border: 2px solid white;
+          border-radius: 50%;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        "></div>`,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+    }
+    
+    // Обновление маркеров транспорта
+    function updateVehicles(vehicles) {
+      const currentIds = new Set();
+      
+      vehicles.forEach(vehicle => {
+        currentIds.add(vehicle.id);
+        
+        if (vehicleMarkers[vehicle.id]) {
+          // Обновляем существующий маркер
+          const marker = vehicleMarkers[vehicle.id];
+          marker.setLatLng([vehicle.latitude, vehicle.longitude]);
+          marker.setIcon(createVehicleIcon(vehicle.routeColor));
+          
+          // Обновляем popup
+          const popupContent = `
+            <div class="vehicle-popup">
+              <h4>${vehicle.routeName}</h4>
+              <p><strong>ID:</strong> ${vehicle.id}</p>
+              <p><strong>Скорость:</strong> ${vehicle.speed} км/ч</p>
+              <p><strong>Направление:</strong> ${vehicle.bearing}°</p>
+              <p><strong>Статус:</strong> ${vehicle.currentStatus === 'STOPPED_AT' ? 'На остановке' : 'В пути'}</p>
+              <p><strong>Заполненность:</strong> ${translateOccupancy(vehicle.occupancyStatus)}</p>
+            </div>
+          `;
+          marker.setPopupContent(popupContent);
+        } else {
+          // Создаем новый маркер
+          const popupContent = `
+            <div class="vehicle-popup">
+              <h4>${vehicle.routeName}</h4>
+              <p><strong>ID:</strong> ${vehicle.id}</p>
+              <p><strong>Скорость:</strong> ${vehicle.speed} км/ч</p>
+              <p><strong>Направление:</strong> ${vehicle.bearing}°</p>
+              <p><strong>Статус:</strong> ${vehicle.currentStatus === 'STOPPED_AT' ? 'На остановке' : 'В пути'}</p>
+              <p><strong>Заполненность:</strong> ${translateOccupancy(vehicle.occupancyStatus)}</p>
+            </div>
+          `;
+          
+          const marker = L.marker([vehicle.latitude, vehicle.longitude], {
+            icon: createVehicleIcon(vehicle.routeColor)
+          }).addTo(map);
+          
+          marker.bindPopup(popupContent);
+          vehicleMarkers[vehicle.id] = marker;
+        }
+      });
+      
+      // Удаляем маркеры, которых больше нет
+      Object.keys(vehicleMarkers).forEach(id => {
+        if (!currentIds.has(id)) {
+          map.removeLayer(vehicleMarkers[id]);
+          delete vehicleMarkers[id];
+        }
+      });
+      
+      // Обновляем счетчик
+      document.getElementById('vehicleCount').textContent = vehicles.length;
+    }
+    
+    // Перевод статуса заполненности
+    function translateOccupancy(status) {
+      const translations = {
+        'EMPTY': 'Пустой',
+        'MANY_SEATS_AVAILABLE': 'Много мест',
+        'FEW_SEATS_AVAILABLE': 'Мало мест',
+        'STANDING_ROOM_ONLY': 'Только стоя',
+        'FULL': 'Полный',
+        'NOT_ACCEPTING_PASSENGERS': 'Не принимает пассажиров'
+      };
+      return translations[status] || status;
+    }
+    
+    // Обновление времени последнего обновления
+    function updateLastUpdate() {
+      const now = new Date();
+      document.getElementById('lastUpdate').textContent = now.toLocaleTimeString('ru-RU');
+    }
+    
+    // Подключение к WebSocket
+    let ws;
+    function connectWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}`;
+      
+      ws = new WebSocket(wsUrl);
+      
+      ws.onopen = () => {
+        console.log('WebSocket подключен');
+        document.getElementById('statusIndicator').className = 'status-indicator status-connected';
+        document.getElementById('statusText').textContent = 'Подключено';
+      };
+      
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'init' || data.type === 'update') {
+            updateVehicles(data.vehicles);
+            updateLastUpdate();
+          }
+        } catch (error) {
+          console.error('Ошибка парсинга данных:', error);
+        }
+      };
+      
+      ws.onclose = () => {
+        console.log('WebSocket отключен. Повторное подключение через 5 секунд...');
+        document.getElementById('statusIndicator').className = 'status-indicator status-disconnected';
+        document.getElementById('statusText').textContent = 'Отключено';
+        setTimeout(connectWebSocket, 5000);
+      };
+      
+      ws.onerror = (error) => {
+        console.error('WebSocket ошибка:', error);
+      };
+    }
+    
+    // Проверка API
+    async function checkAPI() {
+      try {
+        const response = await fetch('/api/info');
+        const data = await response.json();
+        document.getElementById('apiStatus').textContent = 'OK';
+        document.getElementById('apiStatus').style.color = '#4CAF50';
+      } catch (error) {
+        document.getElementById('apiStatus').textContent = 'Ошибка';
+        document.getElementById('apiStatus').style.color = '#f44336';
+      }
+    }
+    
+    // Инициализация
+    connectWebSocket();
+    checkAPI();
+    
+    // Периодическая проверка API
+    setInterval(checkAPI, 30000);
+  </script>
+</body>
+</html>

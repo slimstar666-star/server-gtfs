@@ -1,0 +1,23 @@
+{
+  "name": "okayama-transit",
+  "version": "1.0.0",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["gtfs", "gtfs-rt", "transit", "okayama"],
+  "author": "",
+  "license": "ISC",
+  "description": "GTFS-RT сервер для отображения транспорта Окаямы",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "node-fetch": "^3.3.2",
+    "protobufjs": "^8.7.2",
+    "ws": "^8.21.3"
+  },
+  "devDependencies": {
+    "protobufjs-cli": "^2.6.2"
+  }
+}
