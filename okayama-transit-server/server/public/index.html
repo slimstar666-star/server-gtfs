@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Okayama Transit Map - 岡山 交通マップ</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <div id="map"></div>
+  
+  <div class="info-panel">
+    <h1>🚌 Okayama Transit Map</h1>
+    <h2>岡山 交通リアルタイムマップ</h2>
+    
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-label">Vehicles:</span>
+        <span class="stat-value" id="vehicle-count">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Last Update:</span>
+        <span class="stat-value" id="last-update">--:--:--</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Status:</span>
+        <span class="stat-value" id="connection-status">Connecting...</span>
+      </div>
+    </div>
+    
+    <div class="legend">
+      <h3>Route Legend / ルート凡例</h3>
+      <div class="legend-item">
+        <span class="legend-color" style="background: #FF0000;"></span>
+        <span>Route 1</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background: #00FF00;"></span>
+        <span>Route 2</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background: #0000FF;"></span>
+        <span>Route 3</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background: #FFFF00;"></span>
+        <span>Route 4</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color" style="background: #FF00FF;"></span>
+        <span>Route 5</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

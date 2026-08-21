@@ -1,0 +1,26 @@
+{
+  "name": "okayama-transit-server",
+  "version": "1.0.0",
+  "description": "GTFS & GTFS-RT сервер для отображения транспорта Окаямы",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "import-gtfs": "node src/gtfs-importer.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.14.2",
+    "pg": "^8.11.3",
+    "redis": "^4.6.10",
+    "axios": "^1.6.0",
+    "protobufjs": "^7.2.5",
+    "csv-parser": "^3.0.0",
+    "unzipper": "^0.10.14",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

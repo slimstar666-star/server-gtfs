@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgis/postgis:15-3.3
+    container_name: transit-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-transit_db}
+      POSTGRES_USER: ${DB_USER:-transit_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-transit_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-transit_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: transit-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: transit-server
+    environment:
+      - PORT=${PORT:-3001}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME:-transit_db}
+      - DB_USER=${DB_USER:-transit_user}
+      - DB_PASSWORD=${DB_PASSWORD:-transit_pass}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - GTFS_STATIC_PATH=/app/data/okayama_gtfs.zip
+      - GTFS_RT_URL=${GTFS_RT_URL:-https://example.com/gtfs-rt.pb}
+      - UPDATE_INTERVAL_MS=${UPDATE_INTERVAL_MS:-5000}
+    ports:
+      - "${PORT:-3001}:${PORT:-3001}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
