@@ -1,0 +1,1 @@
+Nothing needs to be added to .gitignore since 'hex.txt' is just a regular text file that doesn't fall into any of the categories that should be ignored (it's not a compiled file, dependency directory, editor file, system file, or compressed file). The current .gitignore is empty and there are no build artifacts, dependencies, or temporary files in the changes.
